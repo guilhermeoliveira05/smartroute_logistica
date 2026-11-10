@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartRoute Logística</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo">
+    <div>
+      <h1>SmartRoute <span>Logística</span></h1>
+      <p>Roteirização inteligente com eficiência energética · Construlog Materiais de Construção</p>
+    </div>
+    <div class="acoes">
+      <button id="btn-demo" class="sec">Carregar 35 entregas de demo</button>
+      <button id="btn-planejar" class="prim">Planejar rotas</button>
+      <button id="btn-reset" class="sec perigo">Resetar</button>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <main class="layout">
+    <section class="mapa-box">
+      <div id="map"></div>
+      <div class="legenda">
+        <span><i class="dot cinza"></i> Entrega pendente</span>
+        <span><i class="dot azul"></i> Em rota</span>
+        <span><i class="dot verde"></i> Entregue/Finalizada</span>
+        <span><i class="traco"></i> Via bloqueada (clique numa via para bloquear/liberar)</span>
+      </div>
+    </section>
+
+    <aside class="painel">
+      <nav class="abas">
+        <button data-aba="entregas" class="ativa">Entregas</button>
+        <button data-aba="rotas">Rotas</button>
+        <button data-aba="vias">Vias</button>
+        <button data-aba="relatorios">Relatórios</button>
+      </nav>
+
+      <div class="aba" id="aba-entregas">
+        <form id="form-entrega" autocomplete="off">
+          <div class="grade">
+            <label>Cliente<input name="cliente" required placeholder="Nome do cliente"></label>
+            <label>Endereço
+              <input name="endereco" list="lista-enderecos" required placeholder="ex.: Av. C x Rua 2">
+              <datalist id="lista-enderecos"></datalist>
+            </label>
+            <label>Peso (kg)<input name="peso_kg" type="number" min="0.1" step="0.1" required value="10"></label>
+            <label>Prioridade
+              <select name="prioridade">
+                <option value="1">Urgente</option>
+                <option value="2" selected>Normal</option>
+                <option value="3">Baixa</option>
+              </select>
+            </label>
+            <label>Prazo (min desde a saída)<input name="prazo_min" type="number" min="1" placeholder="opcional"></label>
+            <button class="prim" type="submit">Cadastrar entrega</button>
+          </div>
+        </form>
+        <div class="tabela-wrap"><table id="tab-entregas"></table></div>
+      </div>
+
+      <div class="aba oculta" id="aba-rotas"><div id="lista-rotas"></div></div>
+
+      <div class="aba oculta" id="aba-vias">
+        <p class="ajuda">Clique em qualquer via do mapa para bloqueá-la (obra/acidente). As rotas ainda não
+        iniciadas são replanejadas e as rotas em andamento desviam do trecho bloqueado.</p>
+        <div id="lista-vias"></div>
+      </div>
+
+      <div class="aba oculta" id="aba-relatorios">
+        <p class="ajuda">Relatórios gerenciais com quilometragem, custo e tempo das rotas.</p>
+        <div class="links">
+          <a class="botao" href="/api/relatorios/gerencial.pdf">Relatório gerencial (PDF)</a>
+          <a class="botao" href="/api/relatorios/rotas.csv">Rotas (CSV)</a>
+          <a class="botao" href="/api/relatorios/entregas.csv">Entregas (CSV)</a>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast oculta"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
