@@ -68,7 +68,7 @@ docs/ARQUITETURA.md        Diagramas, fórmulas e rastreabilidade com o document
 Funcionalidades da seção 4.2: cadastro de entregas, roteirização, dashboard em tempo real
 (simulado), relatórios PDF/CSV e bloqueio manual de vias com recálculo.
 
-## Decisões e premissas que vale conhecer (para a banca)
+## Decisões e premissas
 
 1. **Calibração do consumo.** O modelo físico puro dá um consumo muito menor que 8 km/L (moto) e
    4 km/L (caminhão), valores do documento, porque ignora arranca-e-para e marcha lenta. Cada veículo
@@ -87,8 +87,4 @@ Funcionalidades da seção 4.2: cadastro de entregas, roteirização, dashboard 
 6. **Heurística.** Atribuição gulosa + vizinho mais próximo + 2-opt. Não garante o ótimo global
    (problema NP-difícil), mas é determinística e rápida (~0,02 s para 35 entregas).
 
-## Próximos passos sugeridos
 
-- Trocar SQLite por PostgreSQL (só `db.py` muda).
-- Importar malha real do OpenStreetMap (OSMnx) no lugar da grade sintética.
-- Autenticação por perfil (operador x gestor) e multiempresa para o modelo SaaS.
