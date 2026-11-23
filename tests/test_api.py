@@ -1,4 +1,10 @@
 """Testes de integração da API (fluxo completo do operador/gestor)."""
+import pytest
+
+from smartroute import create_app
+from smartroute.db import Repo
+from smartroute.malha import criar_malha
+from smartroute.servico import planejar as planejar_servico
 
 
 def _demo_planejada(client, n=35):
@@ -144,3 +150,25 @@ def test_reset_limpa_tudo(client):
     _demo_planejada(client, n=5)
     client.post("/api/reset")
     assert client.get("/api/entregas").get_json() == [] and client.get("/api/rotas").get_json() == []
+
+
+def test_demo_e_reset_desabilitados_sem_opt_in(tmp_path):
+    app = create_app(str(tmp_path / "protegido.db"))
+    client = app.test_client()
+    assert client.post("/api/demo", json={"n": 2}).status_code == 403
+    assert client.post("/api/reset").status_code == 403
+
+
+def test_falha_no_replanejamento_restaura_rotas_anteriores(client, monkeypatch):
+    _demo_planejada(client, n=8)
+    repo = client.application.config["REPO"]
+    rotas_anteriores = repo.listar_rotas()
+
+    def falhar_ao_salvar(self, viagem):
+        raise RuntimeError("falha simulada ao salvar viagem")
+
+    monkeypatch.setattr(Repo, "salvar_viagem", falhar_ao_salvar)
+    with pytest.raises(RuntimeError, match="falha simulada"):
+        planejar_servico(repo, criar_malha())
+
+    assert repo.listar_rotas() == rotas_anteriores

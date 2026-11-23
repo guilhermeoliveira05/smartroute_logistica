@@ -86,6 +86,6 @@ uma transição de saída (autômato determinístico e linear). Toda transição
 | Falha | Mitigação |
 |---|---|
 | Servidor/aplicação fora do ar | Rotas já planejadas ficam salvas no banco; reiniciar o serviço restaura o estado |
-| Banco corrompido | Backup do arquivo `smartroute.db` (cópia simples); `POST /api/reset` recria o estado limpo |
+| Banco corrompido | Backup do arquivo `smartroute.db` (cópia simples); `POST /api/reset` recria o estado limpo quando `SMARTROUTE_ALLOW_RESET=1` |
 | Via bloqueada sem caminho alternativo | Entrega marcada *inviável* com motivo; demais rotas seguem normalmente |
 | Mapa (CDN/OSM) indisponível | O sistema continua calculando; só a camada de tiles do mapa some |

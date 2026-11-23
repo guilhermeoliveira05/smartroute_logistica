@@ -10,8 +10,18 @@ Empresa parceira fictícia: **Construlog Materiais de Construção** (35 entrega
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python run.py                      # abre em http://127.0.0.1:5000
 ```
+
+O dashboard abre em http://127.0.0.1:5000. As operações destrutivas da demo e do reset vêm
+desabilitadas; habilite-as explicitamente ao executar localmente:
+
+```powershell
+$env:SMARTROUTE_ALLOW_RESET = "1"
+python run.py
+```
+
+No macOS/Linux, use `SMARTROUTE_ALLOW_RESET=1 python run.py`. O debug do Flask fica desligado por
+padrão; para ativá-lo somente em desenvolvimento, defina também `FLASK_DEBUG=1`.
 
 No dashboard: **Carregar 35 entregas de demo** → o sistema já planeja as rotas. Clique numa rota
 (aba *Rotas*) para destacá-la no mapa, use **Avançar simulação ▶** para ver o AFD e a posição do

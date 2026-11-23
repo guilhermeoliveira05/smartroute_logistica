@@ -13,6 +13,7 @@ from .malha import criar_malha
 
 def create_app(db_path: Optional[str] = None) -> Flask:
     app = Flask(__name__)
+    app.config["SMARTROUTE_ALLOW_RESET"] = os.environ.get("SMARTROUTE_ALLOW_RESET") == "1"
     if db_path is None:
         db_path = os.environ.get(
             "SMARTROUTE_DB",

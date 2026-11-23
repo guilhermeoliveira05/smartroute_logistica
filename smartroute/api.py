@@ -29,6 +29,10 @@ def erro(mensagem: str, status: int = 400):
     return jsonify({"erro": mensagem}), status
 
 
+def _operacoes_destrutivas_habilitadas():
+    return current_app.config["SMARTROUTE_ALLOW_RESET"]
+
+
 @bp.errorhandler(servico.ErroNegocio)
 def _erro_negocio(e: servico.ErroNegocio):
     return erro(e.mensagem, e.status)
@@ -218,6 +222,8 @@ def relatorio_pdf():
 # ---- demonstração -------------------------------------------------------
 @bp.post("/demo")
 def demo():
+    if not _operacoes_destrutivas_habilitadas():
+        return erro("Operação desabilitada. Defina SMARTROUTE_ALLOW_RESET=1 para habilitá-la.", 403)
     try:
         n = max(1, min(200, int((request.get_json(silent=True) or {}).get("n", 35))))
     except (TypeError, ValueError):
@@ -232,5 +238,7 @@ def demo():
 
 @bp.post("/reset")
 def reset():
+    if not _operacoes_destrutivas_habilitadas():
+        return erro("Operação desabilitada. Defina SMARTROUTE_ALLOW_RESET=1 para habilitá-la.", 403)
     repo().resetar()
     return jsonify({"ok": True})

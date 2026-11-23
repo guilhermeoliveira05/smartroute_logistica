@@ -26,21 +26,21 @@ def planejar(repo: Repo, grafo: Grafo, modo: str = "energia") -> Dict:
     Rotas já em andamento são preservadas; rotas só planejadas são descartadas
     e recalculadas (é isso que faz o bloqueio de vias desviar as rotas).
     """
-    removidas = repo.remover_rotas_planejadas()
-    ocupados = repo.veiculos_ocupados()
-    veiculos = [v for v in repo.listar_veiculos() if v.id not in ocupados]
-    pendentes = repo.entregas_pendentes()
-    entregas = [EntregaPlan(e["id"], e["no_id"], e["peso_kg"], e["prioridade"], e["prazo_min"])
-                for e in pendentes]
-    plano = planejar_rotas(grafo, DEPOSITO_ID, veiculos, entregas, modo)
+    with repo.transacao() as tx:
+        removidas = tx.remover_rotas_planejadas()
+        ocupados = tx.veiculos_ocupados()
+        veiculos = [v for v in tx.listar_veiculos() if v.id not in ocupados]
+        pendentes = tx.entregas_pendentes()
+        entregas = [EntregaPlan(e["id"], e["no_id"], e["peso_kg"], e["prioridade"], e["prazo_min"])
+                    for e in pendentes]
+        plano = planejar_rotas(grafo, DEPOSITO_ID, veiculos, entregas, modo)
 
-    planejadas = []
-    for viagem in plano.viagens:
-        repo.salvar_viagem(viagem)
-        planejadas.extend(p.id for p in viagem.paradas)
-    repo.marcar_inviaveis(plano.inviaveis, planejadas)
-
-    desviadas = desviar_rotas_ativas(repo, grafo)
+        planejadas = []
+        for viagem in plano.viagens:
+            tx.salvar_viagem(viagem)
+            planejadas.extend(p.id for p in viagem.paradas)
+        tx.marcar_inviaveis(plano.inviaveis, planejadas)
+        desviadas = desviar_rotas_ativas(tx, grafo)
 
     otm, base = plano.totais()
     economia = (1 - otm.litros / base.litros) * 100 if base.litros else 0.0

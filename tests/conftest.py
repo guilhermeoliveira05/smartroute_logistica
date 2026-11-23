@@ -14,6 +14,7 @@ from smartroute.physics import Veiculo, veiculos_padrao
 def client(tmp_path):
     app = create_app(str(tmp_path / "teste.db"))
     app.testing = True
+    app.config["SMARTROUTE_ALLOW_RESET"] = True
     return app.test_client()
 
 

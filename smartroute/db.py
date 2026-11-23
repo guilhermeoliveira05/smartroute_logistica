@@ -53,6 +53,7 @@ def agora() -> str:
 class Repo:
     def __init__(self, caminho: str) -> None:
         self.caminho = caminho
+        self._connection: Optional[sqlite3.Connection] = None
         with self.conn() as c:
             c.executescript(SCHEMA)
             if c.execute("SELECT COUNT(*) FROM veiculos").fetchone()[0] == 0:
@@ -68,12 +69,34 @@ class Repo:
 
     @contextmanager
     def conn(self):
+        if self._connection is not None:
+            yield self._connection
+            return
+
         c = sqlite3.connect(self.caminho)
         c.row_factory = sqlite3.Row
         try:
             yield c
             c.commit()
         except Exception:
+            c.rollback()
+            raise
+        finally:
+            c.close()
+
+    @contextmanager
+    def transacao(self):
+        """Executa operações de repositório na mesma transação SQLite."""
+        c = sqlite3.connect(self.caminho, timeout=30)
+        c.row_factory = sqlite3.Row
+        transacional = object.__new__(Repo)
+        transacional.caminho = self.caminho
+        transacional._connection = c
+        try:
+            c.execute("BEGIN IMMEDIATE")
+            yield transacional
+            c.commit()
+        except BaseException:
             c.rollback()
             raise
         finally:
